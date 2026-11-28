@@ -1,3 +1,15 @@
+## 2026-11-28 — render+app / Route B slice 2 presentation (Pixi terrain depth & board overlay)
+
+- **Pixi static board draw path (`packages/render/src/tiles.ts`, `packages/render/src/tokens.ts`):**
+  - Added `TerrainDepthStyle`, `TERRAIN_DEPTH_RELIEF_BOOST`, and `resolveTerrainDepthStyle(state)` wrapping `sim.terrainDepthSnapshot(state)` (`ab83ba1`, zero mismatch).
+  - Updated `computeBoardStaticCacheKey` to include `td:<relief>:<shadowStrength>:<fogDensity>` vs `td:off` so flag, weather, or fog changes invalidate and repaint the static tile cache cleanly.
+  - Extended `paintTileHeightFace`, `paintFogHeightVeil`, and `paintProvinceStaticTile` (optional `depth` parameter, default `null`) to strengthen cliff shading & prow/base seams by `relief`, draw soft ground shadows + contact penumbra scaled by `shadowStrength`, and thicken fog veils by `fogDensity` while keeping `terrainElevation()`, `boardCameraFit()`, and `hitTestProvince()` untouched.
+- **Thin Dusk/Night/Parchment board overlay (`packages/app/src/hud/BoardTerrainDepth.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardTerrainDepth(state)` and `<BoardTerrainDepth>` mounted in `BoardLiving` right before `<BoardLightingTint>`. Hides cleanly when `null` or `living_terrain_depth` is `false`, and omits `.sc-bdepth-fog` when `fogDensity <= 0`.
+  - Dedicated `hud/board-terrain-depth.css` with Dusk/Night/Parchment tokens, `pointer-events: none !important;`, `@media (prefers-reduced-motion: reduce)`, and no `backdrop-filter`. Slice 0 audio/particles and Slice 1 lighting tint remain untouched.
+- **Presentation-only / security confirmation:** Purely client-side Pixi Graphics + CSS visual presentation reading `terrainDepthSnapshot(state)`. Zero simulation rule changes, zero server endpoints, zero keys/tokens/secrets, and zero zoom/pan/hit-testing changes.
+- **Verification (`packages/app/src/hud/RouteBSlice2Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1095**, app **1772**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Route B slice 2 (terrain depth snapshot)
 
 - **Where:** `systems/presentation.ts` (`terrainDepthSnapshot`, tables `TERRAIN_RELIEF_HEIGHT`, `TERRAIN_RELIEF_BANDS`, `TERRAIN_SHADOW_WEATHER`). Switch key `terrainDepth` → `living_terrain_depth` in `LIVING_SWITCH_FLAGS`. Exported from `packages/sim`.

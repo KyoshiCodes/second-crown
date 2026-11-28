@@ -147,6 +147,46 @@ export function terrainChipPalette(terrain: TerrainId): {
  * wastes drop jagged basalt cliffs, woods form elevated groves,
  * plains form rich loam terraces, and shores meet the sea shelf.
  */
+export interface TerrainDepthStyle {
+  relief: sim.TerrainRelief;
+  shadowStrength: number;
+  fogDensity: number;
+  faceShadeBoost: number;
+  groundShadowAlpha: number;
+  fogVeilBoost: number;
+}
+
+export const TERRAIN_DEPTH_RELIEF_BOOST: Readonly<Record<sim.TerrainRelief, number>> = {
+  low: 0.06,
+  mid: 0.13,
+  high: 0.21,
+};
+
+/**
+ * Pure presentation helper reading `terrainDepthSnapshot(state)` for the Pixi board.
+ * Returns `null` when the snapshot is null (`living_terrain_depth` off) or state is missing.
+ */
+export function resolveTerrainDepthStyle(
+  state: GameState | null | undefined,
+): TerrainDepthStyle | null {
+  if (!state?.flags || !Array.isArray(state.board?.provinces)) return null;
+  const snap = sim.terrainDepthSnapshot(state);
+  if (!snap) return null;
+
+  const shadowStrength = Math.min(1, Math.max(0, Number.isFinite(snap.shadowStrength) ? snap.shadowStrength : 0));
+  const fogDensity = Math.min(1, Math.max(0, Number.isFinite(snap.fogDensity) ? snap.fogDensity : 0));
+  const faceShadeBoost = TERRAIN_DEPTH_RELIEF_BOOST[snap.relief] ?? TERRAIN_DEPTH_RELIEF_BOOST.low;
+
+  return {
+    relief: snap.relief,
+    shadowStrength,
+    fogDensity,
+    faceShadeBoost,
+    groundShadowAlpha: Number((0.05 + shadowStrength * 0.15).toFixed(3)),
+    fogVeilBoost: Number((fogDensity * 0.24).toFixed(3)),
+  };
+}
+
 export function terrainElevation(terrain: TerrainId): number {
   switch (terrain) {
     case "peak": return 14;
@@ -170,7 +210,8 @@ export function paintTileHeightFace(
   terrain: TerrainId,
   pal: { fill: number; fillDark: number; border: number; accent: number },
   phase: number,
-  theme?: ThemeVisuals | null
+  theme?: ThemeVisuals | null,
+  depth?: TerrainDepthStyle | null
 ): void {
   const elev = terrainElevation(terrain);
   if (elev <= 0) return;
@@ -193,6 +234,10 @@ export function paintTileHeightFace(
     g.poly(leftFace);
     g.fill({ color: theme.tintColor, alpha: theme.tintAlpha * 0.55 });
   }
+  if (depth && depth.faceShadeBoost > 0) {
+    g.poly(leftFace);
+    g.fill({ color: 0x000000, alpha: depth.faceShadeBoost * 0.45 });
+  }
 
   // 2. Front-right cliff face (deeper shadow, facing down-right)
   const cliffShadeRight = blendDark(pal.fillDark, 0.7);
@@ -208,17 +253,37 @@ export function paintTileHeightFace(
     g.poly(rightFace);
     g.fill({ color: theme.tintColor, alpha: theme.tintAlpha * 0.4 });
   }
+  if (depth && depth.faceShadeBoost > 0) {
+    g.poly(rightFace);
+    g.fill({ color: 0x000000, alpha: depth.faceShadeBoost });
+  }
 
   // Center vertical prow seam between the two faces
   g.moveTo(wx, wy + hh - elev);
   g.lineTo(wx, wy + hh);
-  g.stroke({ width: 1.2, color: 0x000000, alpha: 0.45 });
+  g.stroke({
+    width: 1.2,
+    color: 0x000000,
+    alpha: depth ? Math.min(0.85, 0.45 + depth.faceShadeBoost * 0.85) : 0.45,
+  });
 
   // Top lip dividing strokes
   g.moveTo(wx - hw, wy - elev);
   g.lineTo(wx, wy + hh - elev);
   g.lineTo(wx + hw, wy - elev);
   g.stroke({ width: 1.2, color: pal.border, alpha: 0.85 });
+
+  if (depth && depth.faceShadeBoost > 0) {
+    // Subtle sunward upper-left lip bevel + grounded base occlusion seam
+    g.moveTo(wx - hw, wy - elev);
+    g.lineTo(wx, wy + hh - elev);
+    g.stroke({ width: 0.9, color: 0xffffff, alpha: 0.1 + depth.faceShadeBoost * 0.45 });
+
+    g.moveTo(wx - hw, wy);
+    g.lineTo(wx, wy + hh);
+    g.lineTo(wx + hw, wy);
+    g.stroke({ width: 1.3, color: 0x000000, alpha: 0.14 + depth.shadowStrength * 0.26 });
+  }
 
   // Left bevel highlight
   g.moveTo(wx - hw, wy - elev);
@@ -369,7 +434,8 @@ export function paintFogHeightVeil(
   g: Graphics,
   b: { x: number; y: number; w: number; h: number; cx: number; cy: number },
   p: Province,
-  phase: number
+  phase: number,
+  depth?: TerrainDepthStyle | null
 ): void {
   const wx = b.cx;
   const wy = b.cy;
@@ -381,6 +447,10 @@ export function paintFogHeightVeil(
   g.fill({ color: 0x000000, alpha: 0.22 });
   g.ellipse(wx, wy + 3, hw * 0.76, hh * 0.68);
   g.fill({ color: 0x0f172a, alpha: 0.18 });
+  if (depth && depth.fogVeilBoost > 0) {
+    g.ellipse(wx, wy + 5, hw * (1.0 + depth.fogDensity * 0.08), hh * (0.92 + depth.fogDensity * 0.08));
+    g.fill({ color: 0x0f172a, alpha: 0.06 + depth.fogVeilBoost * 0.65 });
+  }
 
   // 2. Continuous airy floating hover & wind drift
   const bob = Math.sin(phase * 1.5 + p.x * 0.7 + p.y * 0.9) * 1.4;
@@ -440,6 +510,14 @@ export function paintFogHeightVeil(
   g.moveTo(cx - 6, cy - 9.5);
   g.quadraticCurveTo(cx, cy - 11.5, cx + 6, cy - 9.5);
   g.stroke({ width: 1.0, color: 0xffffff, alpha: 0.9 });
+
+  if (depth && depth.fogVeilBoost > 0) {
+    // Route B slice 2: thicken uncharted fog veil softly according to fogDensity
+    g.ellipse(cx, cy + 2.5, hw * (0.98 + depth.fogDensity * 0.1), hh * (0.86 + depth.fogDensity * 0.12));
+    g.fill({ color: 0xcbd5e1, alpha: 0.12 + depth.fogVeilBoost });
+    g.ellipse(cx, cy - 2, hw * 0.82, hh * 0.68);
+    g.fill({ color: 0xf1f5f9, alpha: 0.1 + depth.fogVeilBoost * 0.85 });
+  }
 
   // 7. Antique cartographer brass compass star & warm golden glint
   // 8-point compass rose glinting through the clouds

@@ -1,0 +1,75 @@
+/* --- Route B Slice 2: Board Terrain Depth Overlay (isolated CSS) ---
+ * Loaded from hud/BoardTerrainDepth.tsx.
+ * Leaves theme.css, board-living.css, board-lighting-tint.css,
+ * board-weather-particles.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on overlay and child layers.
+ * Calm ground shadow vignette & perimeter fog density across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bdepth-shadow: radial-gradient(ellipse at 50% 52%, rgba(2, 6, 23, 0) 52%, rgba(9, 13, 22, 0.72) 100%);
+  --sc-bdepth-fog: radial-gradient(ellipse at 50% 50%, rgba(203, 213, 225, 0.04) 45%, rgba(148, 163, 184, 0.56) 100%);
+  --sc-bdepth-relief-rim: rgba(15, 23, 42, 0.24);
+}
+
+:root[data-chrome="night"] {
+  --sc-bdepth-shadow: radial-gradient(ellipse at 50% 52%, rgba(2, 6, 23, 0) 50%, rgba(2, 6, 23, 0.82) 100%);
+  --sc-bdepth-fog: radial-gradient(ellipse at 50% 50%, rgba(148, 163, 184, 0.05) 45%, rgba(186, 230, 253, 0.44) 100%);
+  --sc-bdepth-relief-rim: rgba(2, 6, 23, 0.34);
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bdepth-shadow: radial-gradient(ellipse at 50% 52%, rgba(41, 28, 16, 0) 52%, rgba(41, 28, 16, 0.66) 100%);
+  --sc-bdepth-fog: radial-gradient(ellipse at 50% 50%, rgba(245, 236, 216, 0.04) 45%, rgba(214, 193, 152, 0.52) 100%);
+  --sc-bdepth-relief-rim: rgba(68, 48, 26, 0.24);
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Container
+   ========================================================================== */
+.sc-bdepth-overlay,
+.sc-bdepth-overlay * {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+.sc-bdepth-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.sc-bdepth-ground,
+.sc-bdepth-fog {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.5s ease;
+}
+
+.sc-bdepth-ground {
+  background: var(--sc-bdepth-shadow);
+  box-shadow: inset 0 0 28px var(--sc-bdepth-relief-rim);
+}
+
+.sc-bdepth-overlay.is-relief-high .sc-bdepth-ground {
+  box-shadow: inset 0 0 38px var(--sc-bdepth-relief-rim);
+}
+
+.sc-bdepth-fog {
+  background: var(--sc-bdepth-fog);
+}
+
+/* ==========================================================================
+   3. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-bdepth-ground,
+  .sc-bdepth-fog {
+    transition: none;
+  }
+}

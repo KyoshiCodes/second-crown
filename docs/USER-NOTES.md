@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Richer terrain depth, soft ground shadows, and deeper fog veil
+
+- **Richer terrain depth on the map:** Mountains, hills, and ridges now show crisper shaded cliff faces with soft ground shadows underneath, and unexplored provinces carry a thicker, calmer cloud veil that clears as you scout—without changing zoom, pan, or map clicks.
+- **Unchanged:** build costs, workers, economy, fog rules, movement, battles, saves, and existing sound, particle, and lighting layers.
+
 ## 2026-11-28 — Groundwork for map depth
 
 - **Terrain depth (under the hood).** The game can now say how hilly the map should look (low, mid or high), how strong soft ground shadows should be (softer under rain, storm or snow), and how thick the fog over unexplored land should feel (thinner as you scout). Nothing is drawn yet; the next step puts it on the map.

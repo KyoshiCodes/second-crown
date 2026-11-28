@@ -318,6 +318,11 @@ import {
   resolveBoardLighting,
   type BoardLightingView,
 } from "./hud/BoardLightingTint";
+import {
+  BoardTerrainDepth,
+  resolveBoardTerrainDepth,
+  type BoardTerrainDepthView,
+} from "./hud/BoardTerrainDepth";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1266,6 +1271,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
         <BoardScaleHorizon state={state} />
         <BoardExpansionRim state={state} />
       </svg>
+      <BoardTerrainDepth state={state} />
       <BoardLightingTint state={state} />
       <BoardWeatherParticles state={state} />
       <BoardSelectionFeedbackNote state={state} selectedId={selectedId} />
@@ -1505,4 +1511,7 @@ export {
   BoardLightingTint,
   resolveBoardLighting,
   type BoardLightingView,
+  BoardTerrainDepth,
+  resolveBoardTerrainDepth,
+  type BoardTerrainDepthView,
 };

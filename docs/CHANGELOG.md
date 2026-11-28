@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 2 presentation (Pixi terrain depth & board overlay)
+
+- **Pixi static board depth (`packages/render/src/tiles.ts`, `packages/render/src/tokens.ts`):** Added `resolveTerrainDepthStyle(state)` reading `terrainDepthSnapshot(state)` (`ab83ba1`, exact match — zero mismatch) and extended `computeBoardStaticCacheKey`, `paintProvinceStaticTile`, `paintTileHeightFace`, and `paintFogHeightVeil` to deepen height-face shading & prow/foot seams by `relief`, add soft ambient ground shadows + contact penumbra scaled by `shadowStrength`, and thicken uncharted fog veils by `fogDensity` without changing `terrainElevation`, zoom, pan, or hit-testing.
+- **Board depth overlay (`packages/app/src/hud/BoardTerrainDepth.tsx`, `hud/board-terrain-depth.css`, `BoardLiving.tsx`):** Added `resolveBoardTerrainDepth` and `<BoardTerrainDepth>`, applying a subtle Dusk/Night/Parchment ground shadow and perimeter fog vignette that hides cleanly when `null`, `fogDensity === 0` (fog layer), or `living_terrain_depth` is `false`.
+- **Presentation-only & invariants:** Dedicated `hud/board-terrain-depth.css` only (zero edits to `packages/sim`, `packages/shared`, `server/`, `packages/render/src/camera.ts`, `theme.css`, `board-living.css`, earlier CSS files, Slice 0/1 layers, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;`, `@media (prefers-reduced-motion: reduce)` guards, and zero heavy filters (`backdrop-filter`).
+- **Tests:** Added `packages/app/src/hud/RouteBSlice2Presentation.test.tsx` (4 tests). Now: sim **1095**, app **1772**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Route B slice 2 (terrain depth snapshot)
 
 - **`terrainDepthSnapshot(state)`** in `packages/sim/src/systems/presentation.ts` → `{ relief, shadowStrength, fogDensity }` or null. `relief` `low|mid|high` from the board's mean terrain height (plain 0, shore 0.1, wood 0.3, waste 0.3, hill 0.65, peak 1; `mid` at 0.3, `high` at 0.5); `shadowStrength` 0–1 = (0.25 + 0.75 × mean height) × weather softening (clear 1, rain 0.7, storm 0.5, snow 0.8); `fogDensity` 0–1 = share of provinces not seen × fog thickness (clear/rain 1, snow 1.2, storm 1.4), clamped. Read-only; the sim draws nothing.

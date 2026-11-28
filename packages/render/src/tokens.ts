@@ -44,6 +44,8 @@ import {
   terrainElevation,
   paintTileHeightFace,
   paintFogHeightVeil,
+  resolveTerrainDepthStyle,
+  type TerrainDepthStyle,
   type ThemeVisuals,
 } from "./tiles.js";
 import {
@@ -6843,6 +6845,12 @@ export function computeBoardStaticCacheKey(
   if (!state?.board?.provinces) return `${band}|empty`;
   const provinces = state.board.provinces;
   const parts: string[] = [band];
+  const depth = resolveTerrainDepthStyle(state);
+  parts.push(
+    depth
+      ? `td:${depth.relief}:${depth.shadowStrength.toFixed(3)}:${depth.fogDensity.toFixed(3)}`
+      : "td:off",
+  );
   for (let i = 0; i < provinces.length; i++) {
     const p = provinces[i]!;
     const seen = isProvinceSeen(state, p.id) ? "1" : "0";
@@ -6860,11 +6868,12 @@ function paintProvinceStaticTile(
   animPhase: number,
   theme: ThemeVisuals,
   visuals: ThemeVisuals | null | undefined,
-  boardWeather: AtmosphereWeather
+  boardWeather: AtmosphereWeather,
+  depth: TerrainDepthStyle | null = null
 ): void {
   if (!seen) {
     // Unseen Province: Raised Volumetric Cumulus Cloud Mass (NOT purple squares)
-    paintFogHeightVeil(g, b, p, animPhase);
+    paintFogHeightVeil(g, b, p, animPhase, depth);
     return;
   }
 
@@ -6884,6 +6893,25 @@ function paintProvinceStaticTile(
   ]);
   g.fill({ color: 0x000000, alpha: 0.32 });
 
+  if (depth && depth.groundShadowAlpha > 0) {
+    // Route B slice 2: soft ambient ground shadow + contact penumbra scaled by shadowStrength
+    g.ellipse(
+      wx + 2.5,
+      wy + 4.5,
+      hw * (1.04 + elev * 0.008),
+      hh * (1.04 + elev * 0.012),
+    );
+    g.fill({ color: 0x000000, alpha: depth.groundShadowAlpha });
+
+    g.poly([
+      wx - hw - 1, wy + 1,
+      wx, wy + hh + 2,
+      wx + hw + 2, wy + 1,
+      wx, wy + hh + 5,
+    ]);
+    g.fill({ color: 0x000000, alpha: depth.groundShadowAlpha * 0.85 });
+  }
+
   // Resolve Board-Only Seasonal Wash (Winter frost on all tiles, Harvest gold on farms/plains, Spring/Summer untouched)
   const wash = resolveBoardSeasonWash(state, p, visuals);
   const tileTheme: ThemeVisuals = wash.hasWash && wash.washColor !== null
@@ -6892,7 +6920,7 @@ function paintProvinceStaticTile(
 
   // 2. 3D Height Faces (Front-left & Front-right vertical cliffs based on Terrain)
   if (elev > 0) {
-    paintTileHeightFace(g, b, p.terrain, pal, animPhase, tileTheme);
+    paintTileHeightFace(g, b, p.terrain, pal, animPhase, tileTheme, depth);
   }
 
   // 3. Raised Top Diamond Plateau
@@ -7425,12 +7453,13 @@ export function paintBoardStaticTiles(
   }
 
   const theme = resolveBoardThemeVisuals(state, visuals);
+  const depth = resolveTerrainDepthStyle(state);
   const sortedProvinces = sortBoardProvincesDepth(state.board.provinces);
 
   for (const p of sortedProvinces) {
     const b = provinceTokenBounds(p.x, p.y);
     const seen = isProvinceSeen(state, p.id);
-    paintProvinceStaticTile(g, state, p, b, seen, 0, theme, visuals, "clear");
+    paintProvinceStaticTile(g, state, p, b, seen, 0, theme, visuals, "clear", depth);
   }
 }
 
@@ -7571,6 +7600,7 @@ export function paintBoardProvinces(
 
   const animPhase = typeof phase === "number" ? phase : 0;
   const theme = resolveBoardThemeVisuals(state, visuals);
+  const depth = resolveTerrainDepthStyle(state);
   const boardWeather = resolveAtmosphereWeather(state);
   const boardDayPhase = resolveDayPhase(state, animPhase);
   const marchDestMap = buildMarchDestinationMap(state);
@@ -7579,7 +7609,7 @@ export function paintBoardProvinces(
   for (const p of sortedProvinces) {
     const b = provinceTokenBounds(p.x, p.y);
     const seen = isProvinceSeen(state, p.id);
-    paintProvinceStaticTile(g, state, p, b, seen, animPhase, theme, visuals, boardWeather);
+    paintProvinceStaticTile(g, state, p, b, seen, animPhase, theme, visuals, boardWeather, depth);
     paintProvinceDynamicToken(
       g,
       state,
