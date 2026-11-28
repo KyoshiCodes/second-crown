@@ -2,6 +2,12 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Weather moods and paired work buildings
+
+- **Paired buildings help a little.** Build two of the same work building (two farms, two quarries, and so on) and the first one you finished makes 2% more. Only one bonus per building type, however many you build. Buildings still under construction do not count.
+- **Weather moods (under the hood).** The game can now sum up the day in a word or two: "Open and quiet", "Soft weather", "Still season" or "Restless sky". Not on screen yet.
+- **Unchanged:** build costs, the building list, workers, weather effects, fog, movement and battles.
+
 ## 2026-11-27 — Environment moods, seasoned Tier II+ station marks, and companion structures
 
 - **Land, weather, and season around the map:** The map border now shows gentle terrain silhouettes, weather atmosphere (`Calm air`, `Soft rain`, `Rolling thunder`, `Quiet snowfall`), and a quiet seasonal mood tag in the top-right stack.

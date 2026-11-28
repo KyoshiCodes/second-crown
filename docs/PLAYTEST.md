@@ -195,6 +195,8 @@ Board expanded to 16×10, building variety, and passive work-station benefits (+
 
 Environment enrichment, deeper work stations, and extra buildings available (`living_environment`, `living_work_station_depth`, `living_extra_buildings`); new bonus: a staffed station at Tier II or higher gives a further +3% output on top of the +5% (depth flag off removes only the +3%).
 
+Environment depth and station pairing available (`living_environment_depth`, `living_station_pair`); new bonus: two finished work buildings of the same type give +2% output on the first one built (one per type; pair flag off removes it).
+
 Attentive:
 
 ```

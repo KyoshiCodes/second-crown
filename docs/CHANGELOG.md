@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2026-11-28 — Living Realm slice 32 (environment depth, station pairing)
+
+- **Environment depth:** `environmentSnapshot(state)` gains **`mood`** → `{ features, ambient, note, mood }`. `mood` = `Restless sky` (storm) / `Soft weather` (rain or snow) / `Still season` (clear Winter) / `Open and quiet` (clear, other seasons). Read-only.
+- **Station pairing (rule change):** `stationPairBonus` multiplies output by **1.02** on the lead of two or more finished work-station buildings of the same type in the same realm. Lead = first finished one in build order. One bonus per type (three farms: still one +2%). No staffing needed. Applied in `rateFor` after `workStationDepthBonus`. **`stationPairSnapshot(state, buildingId)`** `{ paired, note }` or null (unknown id, no station, flag off); `note` = `Pair bonus on this one.` / `Paired; bonus on its twin.` / `Pairs once built.` / `Build a second to pair.`
+- **Switches:** `living_environment_depth` (false: `mood` null, other fields kept), `living_station_pair` (false: null and no +2%).
+- **Left alone:** pathfinding, fog, weather / season rules, build costs, building list, `staffBonus`, `adjacencyBonus`, `pairBonus`, slice 30/31 station bonuses, render / app.
+- **Tests:** new `systems/livingSlice32.test.ts` (18): mood mapping, mood over many ticks, depth flag, pair shape, lead order, construction, other realm, economy +1% total on two farms, lone farm unchanged, flag off, determinism. Slice 31 shape test updated for `mood`. Now: sim **998**, app **1739**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for environment, work-station depth, and extra buildings (Slice 31)
 
 - **Environment enrichment (`hud/BoardEnvironmentMarks.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironment`, `<BoardEnvironmentLayer>`, and `<BoardEnvironmentNote>`, reading `environmentSnapshot(state)` (`f99f046`, exact match — zero mismatch) to render perimeter terrain silhouettes (`Open plains` / `Old woods` / `Rolling hills` / `Long shoreline` / `Barren wastes` / `High peaks`), ambient weather marks (`Calm air` / `Soft rain` / `Rolling thunder` / `Quiet snowfall`), and seasonal mood pill without altering board geometry, fog, or pathfinding, hiding cleanly when `null` or `living_environment` is `false`.

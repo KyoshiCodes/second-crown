@@ -145,6 +145,14 @@ import {
   EXTRA_BUILDING_NOTE_BUILDING,
   EXTRA_BUILDING_NOTE_UPGRADING,
   EXTRA_BUILDING_NOTE_STANDING,
+  ENVIRONMENT_MOOD_OPEN,
+  ENVIRONMENT_MOOD_RESTLESS,
+  ENVIRONMENT_MOOD_SOFT,
+  ENVIRONMENT_MOOD_STILL,
+  STATION_PAIR_NOTE_ALONE,
+  STATION_PAIR_NOTE_BUILDING,
+  STATION_PAIR_NOTE_LEAD,
+  STATION_PAIR_NOTE_TWIN,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -157,7 +165,7 @@ import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
-import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, workStationBonus, workStationDepthBonus } from "./economy.js";
+import { computeIncomePerSecond, incomeSourcesPerTick, staffBonus, stationPairBonus, stationPairState, workStationBonus, workStationDepthBonus } from "./economy.js";
 import { weatherFor } from "./weather.js";
 import { currentSeason } from "./age.js";
 import { upkeepPerTick } from "./upkeep.js";
@@ -1750,6 +1758,8 @@ export interface Environment {
   ambient: string;
   /** ENVIRONMENT_NOTE line for the season. */
   note: string;
+  /** Slice 32: ENVIRONMENT_MOOD_* from weather and season; null with living_environment_depth off. */
+  mood: string | null;
 }
 
 /**
@@ -1767,9 +1777,20 @@ export function environmentSnapshot(state: GameState): Environment | null {
     if ((counts[t] ?? 0) > 0 && (best === null || counts[t] > counts[best])) best = t;
   }
   const features = best === null ? ENVIRONMENT_FEATURES.plain : ENVIRONMENT_FEATURES[best];
-  const ambient = ENVIRONMENT_AMBIENT[weatherFor(state)] ?? ENVIRONMENT_AMBIENT.clear;
-  const note = ENVIRONMENT_NOTE[currentSeason(state)] ?? ENVIRONMENT_NOTE.Spring;
-  return { features, ambient, note };
+  const weather = weatherFor(state);
+  const season = currentSeason(state);
+  const ambient = ENVIRONMENT_AMBIENT[weather] ?? ENVIRONMENT_AMBIENT.clear;
+  const note = ENVIRONMENT_NOTE[season] ?? ENVIRONMENT_NOTE.Spring;
+  const mood = livingSwitches(state).environmentDepth ? environmentMood(weather, season) : null;
+  return { features, ambient, note, mood };
+}
+
+/** Slice 32: fixed mood line. Storm: restless; rain or snow: soft; clear Winter: still; else open. */
+export function environmentMood(weather: string, season: string): string {
+  if (weather === "storm") return ENVIRONMENT_MOOD_RESTLESS;
+  if (weather === "rain" || weather === "snow") return ENVIRONMENT_MOOD_SOFT;
+  if (season === "Winter") return ENVIRONMENT_MOOD_STILL;
+  return ENVIRONMENT_MOOD_OPEN;
 }
 
 // ---------------------------------------------------------------- work station depth (slice 31)
@@ -1833,4 +1854,28 @@ export function extraBuildingSnapshot(state: GameState, buildingId: string): Ext
   if (r.phase === "upgrading") return { extra, detail: EXTRA_BUILDING_DETAIL_UPGRADING, note: EXTRA_BUILDING_NOTE_UPGRADING };
   const detail = r.level >= EXTRA_BUILDING_FULL_LEVEL ? EXTRA_BUILDING_DETAIL_FULL : EXTRA_BUILDING_DETAIL_SMALL;
   return { extra, detail, note: EXTRA_BUILDING_NOTE_STANDING };
+}
+
+// ---------------------------------------------------------------- station pairing (slice 32)
+
+export interface StationPair {
+  /** True when this station and another of the same type in the same realm are both finished. */
+  paired: boolean;
+  /** STATION_PAIR_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 32: whether a station has a same-type twin. Null for an unknown id, a building that
+ * takes no worker, or with living_station_pair off (which also turns the +2% off). The lead
+ * (first finished in build order) carries the bonus; the note says which one.
+ */
+export function stationPairSnapshot(state: GameState, buildingId: string): StationPair | null {
+  if (!livingSwitches(state).stationPair) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  if (readBuilding(state, b).workStation === null) return null;
+  if (b.completesAtTick !== null) return { paired: false, note: STATION_PAIR_NOTE_BUILDING };
+  if (!stationPairState(state, b).paired) return { paired: false, note: STATION_PAIR_NOTE_ALONE };
+  return { paired: true, note: stationPairBonus(state, b) > 1 ? STATION_PAIR_NOTE_LEAD : STATION_PAIR_NOTE_TWIN };
 }

@@ -1,3 +1,10 @@
+## 2026-11-28 — sim / Living Realm slice 32 (environment depth, station pairing)
+
+- **Where:** `environmentMood` + `stationPairSnapshot` in `systems/livingStatus.ts`; `stationPairState` / `stationPairBonus` in `systems/economy.ts`; constants `ENVIRONMENT_MOOD_*`, `STATION_PAIR_*` in `content/livingRealm.ts`. Exported from `packages/sim` (except `environmentMood`, test-only).
+- **Mood:** pure function of `weatherFor` and `currentSeason` (both already seeded / tick-based). Order: storm, then rain/snow, then clear Winter, then clear. Gated by `livingSwitches(state).environmentDepth`; off returns `mood: null` instead of nulling the snapshot so the slice 31 fields stay.
+- **Pair bonus:** `stationPairBonus` reads `state.flags.living_station_pair` directly (hot path, like slices 30/31). Station = `BUILDING_WORK_STATIONS[jobForBuildingType(type)]` defined, same test as `readBuilding`. Paired = this building finished and >= 2 finished same type + realm. Lead = first of those in `state.buildings` order, so the bonus never moves unless the lead is removed. Multiplied in `rateFor` after `workStationDepthBonus`, so offline advance agrees. Upgrading does not pause it (only `completesAtTick`). Snapshot note reads the same function.
+- **Left alone:** pathfinding, fog, weather / season, build costs, `content/buildings.ts`, `staffBonus`, `adjacencyBonus`, `pairBonus`, slices 30/31 bonuses, render / app. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for environment, work-station depth & extra buildings
 
 - **Board environment marks (`packages/app/src/hud/BoardEnvironmentMarks.tsx`, `BoardLiving.tsx`):**

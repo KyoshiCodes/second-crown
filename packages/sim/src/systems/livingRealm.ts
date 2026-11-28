@@ -189,6 +189,10 @@ export interface LivingSwitches {
   workStationDepth: boolean;
   /** Extra buildings (slice 31): extraBuildingSnapshot. False: null. Read-only either way. */
   extraBuildings: boolean;
+  /** Environment depth (slice 32): mood on environmentSnapshot. False: mood null. Read-only either way. */
+  environmentDepth: boolean;
+  /** Station pairing (slice 32): +2% on the lead of two same-type stations, and stationPairSnapshot. False: no bonus, null. */
+  stationPair: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -253,6 +257,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   environment: "living_environment",
   workStationDepth: "living_work_station_depth",
   extraBuildings: "living_extra_buildings",
+  environmentDepth: "living_environment_depth",
+  stationPair: "living_station_pair",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

@@ -730,6 +730,28 @@ export const EXTRA_BUILDING_NOTE_UPGRADING = "Grows with the upgrade.";
 /** Slice 31: extra building note, finished. */
 export const EXTRA_BUILDING_NOTE_STANDING = "Adds life, not output.";
 
+// ---------------------------------------------------------------- environment depth, station pairing (slice 32)
+
+/** Slice 32: environment mood, stormy weather. */
+export const ENVIRONMENT_MOOD_RESTLESS = "Restless sky";
+/** Slice 32: environment mood, rain or snow. */
+export const ENVIRONMENT_MOOD_SOFT = "Soft weather";
+/** Slice 32: environment mood, clear Winter day. */
+export const ENVIRONMENT_MOOD_STILL = "Still season";
+/** Slice 32: environment mood, clear day outside Winter. */
+export const ENVIRONMENT_MOOD_OPEN = "Open and quiet";
+
+/** Slice 32: output multiplier on the lead station of a same-type pair (first finished one in build order). */
+export const STATION_PAIR_MULT = 1.02;
+/** Slice 32: station pair note, this building carries the pair bonus. */
+export const STATION_PAIR_NOTE_LEAD = "Pair bonus on this one.";
+/** Slice 32: station pair note, paired, the bonus sits on the twin. */
+export const STATION_PAIR_NOTE_TWIN = "Paired; bonus on its twin.";
+/** Slice 32: station pair note, this building is still going up. */
+export const STATION_PAIR_NOTE_BUILDING = "Pairs once built.";
+/** Slice 32: station pair note, no finished twin of this type. */
+export const STATION_PAIR_NOTE_ALONE = "Build a second to pair.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**

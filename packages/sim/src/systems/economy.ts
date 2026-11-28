@@ -12,7 +12,7 @@ import { applyOutpostTithe, outpostTithePerTick } from "./outpost.js";
 import { researchYield } from "./research.js";
 import { laborPerTick } from "./labor.js";
 import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
-import { WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
+import { BUILDING_WORK_STATIONS, STATION_PAIR_MULT, WORK_STATION_BENEFIT_MULT, WORK_STATION_DEPTH_MIN_LEVEL, WORK_STATION_DEPTH_MULT } from "../content/livingRealm.js";
 import { LIVING_SWITCH_FLAGS } from "./livingRealm.js";
 import { keepIncomeMult, levelYieldMult } from "../content/pacing.js";
 import { farmCultureBonus, quarryCultureBonus, woodCultureBonus } from "./culture.js";
@@ -79,6 +79,33 @@ export function workStationDepthBonus(state: GameState, building: GameState["bui
   return WORK_STATION_DEPTH_MULT;
 }
 
+/**
+ * Slice 32: station pairing. A building is paired when it and at least one other building of
+ * the same type in the same realm are finished. The lead of the pair is the first finished
+ * one of that type in build order (state.buildings order). Pure.
+ */
+export function stationPairState(
+  state: GameState,
+  building: GameState["buildings"][number]
+): { paired: boolean; lead: boolean } {
+  if (building.completesAtTick !== null) return { paired: false, lead: false };
+  const finished = state.buildings.filter(
+    (b) => b.realmId === building.realmId && b.typeId === building.typeId && b.completesAtTick === null
+  );
+  if (finished.length < 2) return { paired: false, lead: false };
+  return { paired: true, lead: finished[0]?.id === building.id };
+}
+
+/**
+ * Slice 32: +2% (STATION_PAIR_MULT) on the lead station of a same-type pair. One per type,
+ * not per twin. Buildings that take no worker never pair. Flag living_station_pair false: 1.
+ */
+export function stationPairBonus(state: GameState, building: GameState["buildings"][number]): number {
+  if (state.flags[LIVING_SWITCH_FLAGS.stationPair] === false) return 1;
+  if (BUILDING_WORK_STATIONS[jobForBuildingType(building.typeId)] === undefined) return 1;
+  return stationPairState(state, building).lead ? STATION_PAIR_MULT : 1;
+}
+
 /** Finished same-type neighbor on an edge: +10% each, cap +20%. */
 export function adjacencyBonus(state: GameState, building: GameState["buildings"][number]): number {
   const n = state.buildings.filter(
@@ -136,6 +163,7 @@ function rateFor(state: GameState, building: GameState["buildings"][number], res
     .mul(staffBonus(state, building))
     .mul(workStationBonus(state, building))
     .mul(workStationDepthBonus(state, building))
+    .mul(stationPairBonus(state, building))
     .mul(adjacencyBonus(state, building))
     .mul(pairBonus(state, building))
     .mul(keepBonus(state, building))
