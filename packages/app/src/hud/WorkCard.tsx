@@ -35,6 +35,7 @@ import { BuildingVarietyRow, resolveBuildingVariety } from "./BuildingVarietyBad
 import { WorkStationBenefitBadge } from "./WorkStationBenefitMark";
 import { WorkStationDepthBadge } from "./WorkStationDepthMark";
 import { WorkStationPairBadge } from "./WorkStationPairMark";
+import { WorkStationRestBadge } from "./WorkStationRestMark";
 import { ExtraBuildingRow, resolveExtraBuilding } from "./ExtraBuildingBadge";
 
 type Building = GameState["buildings"][number];
@@ -105,6 +106,7 @@ export function WorkCard(props: { state: GameState; b: Building; scarred: boolea
       <WorkStationBenefitBadge state={state} buildingId={b.id} />
       <WorkStationDepthBadge state={state} buildingId={b.id} />
       <WorkStationPairBadge state={state} buildingId={b.id} />
+      <WorkStationRestBadge state={state} buildingId={b.id} />
       <ExtraBuildingRow state={state} buildingId={b.id} />
       <WorkLivingGlyph
         typeId={b.typeId}

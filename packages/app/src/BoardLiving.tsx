@@ -277,6 +277,12 @@ import {
   type BoardEnvironmentMoodKind,
   type BoardEnvironmentMoodView,
 } from "./hud/BoardEnvironmentMood";
+import {
+  BoardEnvironmentSeasonNotePill,
+  resolveBoardEnvironmentSeasonNote,
+  type BoardEnvironmentSeasonKind,
+  type BoardEnvironmentSeasonNoteView,
+} from "./hud/BoardEnvironmentSeasonNote";
 import "./board-living.css";
 
 /** Canvas viewport dimensions from packages/render/src/camera.ts */
@@ -1231,6 +1237,7 @@ export function BoardLiving({ state, selectedId, lastInspectedId = null, visible
       <BoardExpansionBadge state={state} />
       <BoardEnvironmentNote state={state} />
       <BoardEnvironmentMoodPill state={state} />
+      <BoardEnvironmentSeasonNotePill state={state} />
     </div>
   );
 }
@@ -1430,4 +1437,8 @@ export {
   resolveBoardEnvironmentMood,
   type BoardEnvironmentMoodKind,
   type BoardEnvironmentMoodView,
+  BoardEnvironmentSeasonNotePill,
+  resolveBoardEnvironmentSeasonNote,
+  type BoardEnvironmentSeasonKind,
+  type BoardEnvironmentSeasonNoteView,
 };

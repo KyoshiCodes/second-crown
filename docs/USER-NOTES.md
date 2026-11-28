@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Seasonal realm tag and night-rest crescents on work buildings
+
+- **Season tag on the map:** A calm third seasonal badge (`Early growth`, `High sun`, `Turning leaves`, or `Quiet frost`) now rests directly below the weather mood pill in the map corner.
+- **Night rest & dawn freshness on work buildings:** Finished work buildings in Kingdom show a dim crescent `Resting` mark overnight (`Resting for the night.`), switching to `Fresh +2%` at dawn (`Fresh from rest: +2%.`).
+
 ## 2026-11-28 — Season notes and rested work buildings
 
 - **Work buildings rest at night.** Farms, camps, quarries and other work buildings rest overnight, then work 2% harder at dawn. Dawn is a short part of each day, so it adds up to a small boost. Buildings still under construction do not count.

@@ -1,3 +1,12 @@
+## 2026-11-28 — app / living presentation for environment season note & station rest
+
+- **Environment season-note pill (`packages/app/src/hud/BoardEnvironmentSeasonNote.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironmentSeasonNote(state)` and `<BoardEnvironmentSeasonNotePill>` wrapping `environmentSnapshot(state)?.seasonNote` (`f5c4a6f`, zero mismatch). Renders a non-blocking third top-right pill (`top: 116px; right: 14px;`) stacked cleanly beneath `<BoardEnvironmentMoodPill>` (`top: 92px`) with a 10×10 seasonal mark SVG (`spring`, `summer`, `autumn`, `winter`), returning `null` when `seasonNote` is `null` (`living_environment_notes` off) or `living_environment` is off.
+- **Station rest mark (`packages/app/src/hud/WorkStationRestMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveStationRest(state, buildingId)` and `<WorkStationRestBadge>` wrapping `stationRestSnapshot(state, buildingId)` (`f5c4a6f`, zero mismatch). Draws a dim SVG crescent seal (`sc-wrest-crescent`) when `resting === true`, a `Fresh +2%` amber seal at dawn when `Fresh from rest: +2%.`, plain muted notes otherwise, and hides cleanly on non-station buildings or `living_station_rest` off.
+- **Dedicated CSS (`hud/board-environment-season-note.css`, `hud/work-station-rest.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on crescents/emblems/pips, subtle dimming/glow keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Verification (`packages/app/src/hud/LivingSlice33Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1014**, app **1747**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Living Realm slice 33 (environment notes, station rest)
 
 - **Where:** `seasonNote` in `environmentSnapshot` and `stationRestSnapshot` in `systems/livingStatus.ts`; `stationRestBonus` / `nextStationRestTick` in `systems/economy.ts`; constants `ENVIRONMENT_SEASON_NOTE`, `STATION_REST_*` in `content/livingRealm.ts`; `DAWN_END` now exported from `systems/dayNight.ts`. All exported from `packages/sim`.

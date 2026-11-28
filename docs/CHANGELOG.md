@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Living presentation for environment notes and station rest (Slice 33)
+
+- **Environment season-note pill (`hud/BoardEnvironmentSeasonNote.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentSeasonNote` and `<BoardEnvironmentSeasonNotePill>`, reading `environmentSnapshot(state)?.seasonNote` (`f5c4a6f`, exact match — zero mismatch) to render a calm third top-right pill (`top: 116px`, stacked beneath `<BoardEnvironmentMoodPill>`) with a subtle season emblem (`Early growth`, `High sun`, `Turning leaves`, `Quiet frost`), hiding cleanly when `seasonNote` is `null` or `living_environment_notes` is `false`.
+- **Station rest mark (`hud/WorkStationRestMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveStationRest` and `<WorkStationRestBadge>`, reading `stationRestSnapshot(state, buildingId)` (`f5c4a6f`, exact match — zero mismatch) to draw a dim SVG crescent seal during night rest (`Resting · Resting for the night.`), a calm `Fresh +2%` pill at dawn (`Fresh from rest: +2%.`), and quiet plain notes during day/dusk/construction, hiding cleanly on non-station buildings or `living_station_rest` off.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-environment-season-note.css` and `hud/work-station-rest.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on crescents/emblems/pips, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice33Presentation.test.tsx` (4 tests). Now: sim **1014**, app **1747**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Living Realm slice 33 (environment notes, station rest)
 
 - **Environment notes:** `environmentSnapshot(state)` gains **`seasonNote`** → `{ features, ambient, note, mood, seasonNote }`. `seasonNote` = `Early growth` (Spring) / `High sun` (Summer) / `Turning leaves` (Autumn) / `Quiet frost` (Winter). Read-only.
