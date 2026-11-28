@@ -2,6 +2,13 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-27 — The game can now describe each building and the map size
+
+- **Under the hood only.** For any building the game can give its name, a tier ("Tier I" to "Tier V"), whether a worker is on it, what kind of work spot it is ("Field", "Pit", "Stall"…), and a short line such as "Staffed and working." or "Waiting for a worker."
+- **Map size:** it can also report the board's width and height with a short line ("A mid-sized realm." for today's map).
+- **Nothing else changes.** Building, staffing, upgrades and the map work exactly as before.
+- **Coming to the screen:** richer building cards.
+
 ## 2026-11-27 — Quiet battle feedback marker and polished keep / march / fog map badges
 
 - **Battle feedback on the map:** Right after a clash, a quiet top-left note (`You won here.`, `You lost here.`, or `Others fought here.`) appears above the board alongside a gentle marker on seen battleground tiles, hiding automatically when no battle happened recently.

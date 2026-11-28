@@ -415,6 +415,8 @@ export {
   selectionFeedbackSnapshot,
   battleFeedbackSnapshot,
   boardPolishSnapshot,
+  buildingDetailSnapshot,
+  boardScaleSnapshot,
 } from "./systems/livingStatus.js";
 export type {
   PressureLevel,
@@ -470,6 +472,8 @@ export type {
   SelectionFeedback,
   BattleFeedback,
   BoardPolish,
+  BuildingDetail,
+  BoardScale,
 } from "./systems/livingStatus.js";
 export {
   WAR_PHASE_IDS,
@@ -579,6 +583,18 @@ export {
   POLISH_KEEP_HOME,
   POLISH_KEEP_RIVAL,
   POLISH_KEEP_EMPTY,
+  BUILDING_TIER_LABELS,
+  BUILDING_WORK_STATIONS,
+  BUILDING_NOTE_BUILDING,
+  BUILDING_NOTE_UPGRADING,
+  BUILDING_NOTE_NO_STATION,
+  BUILDING_NOTE_STAFFED,
+  BUILDING_NOTE_UNSTAFFED,
+  BOARD_SCALE_SMALL_TILES,
+  BOARD_SCALE_MID_TILES,
+  BOARD_SCALE_NOTE_SMALL,
+  BOARD_SCALE_NOTE_MID,
+  BOARD_SCALE_NOTE_WIDE,
   FORMATION_IDS,
   COLUMN_MARK_IDS,
   FIGHT_LOCKED_LINE,

@@ -187,6 +187,8 @@ Board surface detail and selection feedback available (`living_board_surface`, `
 
 Battle feedback and board polish detail available (`living_battle_feedback`, `living_board_polish`). Read-only.
 
+Building detail and board scale note available (`living_building_detail`, `living_board_scale`). Read-only.
+
 Attentive:
 
 ```

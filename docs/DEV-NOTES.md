@@ -1,3 +1,13 @@
+## 2026-11-27 — sim / Living Realm slice 28 (building detail, board scale)
+
+- **Where:** `buildingDetailSnapshot`, `boardScaleSnapshot` in `systems/livingStatus.ts`. Constants `BUILDING_TIER_LABELS`, `BUILDING_WORK_STATIONS`, `BUILDING_NOTE_*`, `BOARD_SCALE_SMALL_TILES` (48), `BOARD_SCALE_MID_TILES` (120), `BOARD_SCALE_NOTE_*` in `content/livingRealm.ts`.
+- **Building rules reused, not copied:** name from `getBuildingType`; station from `jobForBuildingType` mapped through `BUILDING_WORK_STATIONS` (unassigned → null); `staffed` from `economy.staffBonus` (so it matches yield exactly); upgrade note from `upgradeJobFor`. Note order: construction, upgrade, no station, staffed / unstaffed. `staffed` is always false when `workStation` is null. Any realm's building is readable; the app should pass player building ids.
+- **Not the staff hint:** `emptyStaffWorks` skips keep / walls / watchtower etc.; building detail does not, so a keep with no guard reads `Waiting for a worker.` while the staff hint stays silent. Intentional: detail reports the raw staffing state.
+- **Board scale:** reads `state.board.width` / `height` as stored; null unless both are positive integers. Bands by `width * height`.
+- **Switches:** `buildingDetail`, `boardScale` in `LivingSwitches`.
+- **Exports:** the two functions, types `BuildingDetail`, `BoardScale`, and the constants from `packages/sim`.
+- **Left alone:** `actions/build.ts`, `actions/upgrade.ts` (import only), `economy.ts`, `citizens.ts`, `board.ts`, pathfinding, balance tables; app/render/server source. **Not yet in the app.**
+
 ## 2026-11-27 — app / living presentation for battle feedback & board polish detail
 
 - **Battle feedback overlay (`packages/app/src/hud/BoardBattleFeedback.tsx`, `packages/app/src/BoardLiving.tsx`):**

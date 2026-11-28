@@ -83,6 +83,18 @@ import {
   POLISH_KEEP_HOME,
   POLISH_KEEP_RIVAL,
   POLISH_KEEP_EMPTY,
+  BUILDING_TIER_LABELS,
+  BUILDING_WORK_STATIONS,
+  BUILDING_NOTE_BUILDING,
+  BUILDING_NOTE_UPGRADING,
+  BUILDING_NOTE_NO_STATION,
+  BUILDING_NOTE_STAFFED,
+  BUILDING_NOTE_UNSTAFFED,
+  BOARD_SCALE_SMALL_TILES,
+  BOARD_SCALE_MID_TILES,
+  BOARD_SCALE_NOTE_SMALL,
+  BOARD_SCALE_NOTE_MID,
+  BOARD_SCALE_NOTE_WIDE,
   COURT_GUIDANCE_IDLE,
   ECONOMY_PRESSURE_HIGH_FILL,
   ECONOMY_PRESSURE_LOW_FILL,
@@ -91,7 +103,7 @@ import {
   STUDY_EFFECTS,
   YIELD_BREAKDOWN_CAP,
 } from "../content/livingRealm.js";
-import { keepLevel } from "../actions/upgrade.js";
+import { keepLevel, upgradeJobFor } from "../actions/upgrade.js";
 import { friendlyRealmIds, livingSwitches, nameOf, relationshipStanceWith, type RelationshipStance } from "./livingRealm.js";
 import { storageCap } from "./storage.js";
 import { fullStores } from "./storageHint.js";
@@ -1444,4 +1456,66 @@ export function boardPolishSnapshot(state: GameState, provinceId: string): Board
   const keep = k === "home" ? POLISH_KEEP_HOME : k === "rival" ? POLISH_KEEP_RIVAL : k === "empty" ? POLISH_KEEP_EMPTY : null;
   const fog = seenNoWrite(state, p.id) ? SURFACE_FOG_CLEAR : SURFACE_FOG_VEILED;
   return { march, keep, fog };
+}
+
+// ---------------------------------------------------------------- building detail (slice 28)
+
+export interface BuildingDetail {
+  /** Building type name (getBuildingType), or the raw type id when the type is unknown. */
+  name: string;
+  /** BUILDING_TIER_LABELS entry for the level (clamped 1..5). */
+  tier: string;
+  /** A matching worker stands on the tile (staffBonus > 1, the economy's rule). */
+  staffed: boolean;
+  /** BUILDING_WORK_STATIONS label for the building's citizen job, or null when it takes none. */
+  workStation: string | null;
+  /** BUILDING_NOTE_* line. */
+  note: string;
+}
+
+/**
+ * Slice 28: detail for one building. Null for an unknown id or with living_building_detail
+ * off. Pure read; build, staff and upgrade rules untouched.
+ */
+export function buildingDetailSnapshot(state: GameState, buildingId: string): BuildingDetail | null {
+  if (!livingSwitches(state).buildingDetail) return null;
+  const b = state.buildings.find((q) => q.id === buildingId);
+  if (!b) return null;
+  const name = getBuildingType(b.typeId)?.name ?? b.typeId;
+  const lvl = Math.max(1, Math.min(5, Math.floor(Number.isFinite(b.level) ? b.level : 1)));
+  const tier = BUILDING_TIER_LABELS[lvl];
+  const job = jobForBuildingType(b.typeId);
+  const workStation = BUILDING_WORK_STATIONS[job] ?? null;
+  const staffed = workStation !== null && staffBonus(state, b) > 1;
+  let note: string;
+  if (b.completesAtTick !== null) note = BUILDING_NOTE_BUILDING;
+  else if (upgradeJobFor(state, b.id)) note = BUILDING_NOTE_UPGRADING;
+  else if (workStation === null) note = BUILDING_NOTE_NO_STATION;
+  else note = staffed ? BUILDING_NOTE_STAFFED : BUILDING_NOTE_UNSTAFFED;
+  return { name, tier, staffed, workStation, note };
+}
+
+// ---------------------------------------------------------------- board scale (slice 28)
+
+export interface BoardScale {
+  /** state.board.width, as stored. */
+  width: number;
+  /** state.board.height, as stored. */
+  height: number;
+  /** BOARD_SCALE_NOTE_* line by tile count. */
+  note: string;
+}
+
+/**
+ * Slice 28: board size with a short note. Null with living_board_scale off or a board with
+ * no positive whole width and height. Pure read; board size and pathfinding untouched.
+ */
+export function boardScaleSnapshot(state: GameState): BoardScale | null {
+  if (!livingSwitches(state).boardScale) return null;
+  const width = state.board?.width;
+  const height = state.board?.height;
+  if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) return null;
+  const tiles = width * height;
+  const note = tiles <= BOARD_SCALE_SMALL_TILES ? BOARD_SCALE_NOTE_SMALL : tiles <= BOARD_SCALE_MID_TILES ? BOARD_SCALE_NOTE_MID : BOARD_SCALE_NOTE_WIDE;
+  return { width, height, note };
 }

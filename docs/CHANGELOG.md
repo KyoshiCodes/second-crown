@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-27 — Living Realm slice 28 (building detail, board scale)
+
+- **Building detail (`buildingDetailSnapshot(state, buildingId)`):** `{ name, tier, staffed, workStation, note }` or null for an unknown id. `tier` = `Tier I`–`Tier V` (level clamped 1–5). `staffed` = `staffBonus > 1`. `workStation` = `Field` / `Woodlot` / `Pit` / `Stall` / `Post` / `Study` per citizen job, null when no job. `note` = `Under construction.` / `Upgrade under way.` / `Needs no workers.` / `Staffed and working.` / `Waiting for a worker.`
+- **Board scale (`boardScaleSnapshot(state)`):** `{ width, height, note }` or null for non-positive / non-whole dimensions. `note` = `A small realm.` (≤48 tiles) / `A mid-sized realm.` (≤120) / `A wide realm.` Live board (12×8) reads mid.
+- **Switches:** `living_building_detail`, `living_board_scale` (false: null). All on.
+- **Read-only:** build, staff, upgrade rules, board size and pathfinding untouched.
+- **Playtest:** one line.
+- **Tests:** new `systems/livingSlice28.test.ts` (15). Now: sim **910**, app **1721**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-27 — Living presentation for battle feedback and board polish detail (Slice 27)
 
 - **Battle feedback layer (`hud/BoardBattleFeedback.tsx`, `BoardLiving.tsx`):** Added `resolveBoardBattleFeedback`, `<BoardBattleFeedbackMark>`, and `<BoardBattleFeedbackNote>`, reading `battleFeedbackSnapshot(state)` (`d403345`, exact match — zero mismatch) to place a quiet `won` / `lost` / `clash` marker on the seen battle province (`isProvinceSeen` + `homeProvinceId` guard) and a calm top-left note strip (`You won here.` / `You lost here.` / `Others fought here.`), hiding completely when `null`, stale, or `living_battle_feedback` is `false`.

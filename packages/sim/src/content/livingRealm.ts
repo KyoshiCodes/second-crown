@@ -511,6 +511,40 @@ export const POLISH_KEEP_RIVAL = "Rival keep";
 /** Slice 27: board polish keep label, a hold no realm holds. */
 export const POLISH_KEEP_EMPTY = "Empty hold";
 
+// ---------------------------------------------------------------- building detail, board scale (slice 28)
+
+/** Slice 28: building tier label per level (index 1..5; level clamped). */
+export const BUILDING_TIER_LABELS: readonly string[] = ["Tier I", "Tier I", "Tier II", "Tier III", "Tier IV", "Tier V"];
+/** Slice 28: work station label per citizen job. A job not listed (unassigned) gives null. */
+export const BUILDING_WORK_STATIONS: Readonly<Record<string, string>> = {
+  farmer: "Field",
+  woodcutter: "Woodlot",
+  miner: "Pit",
+  merchant: "Stall",
+  guard: "Post",
+  scholar: "Study",
+};
+/** Slice 28: building note, still being built. */
+export const BUILDING_NOTE_BUILDING = "Under construction.";
+/** Slice 28: building note, an upgrade is under way. */
+export const BUILDING_NOTE_UPGRADING = "Upgrade under way.";
+/** Slice 28: building note, takes no worker. */
+export const BUILDING_NOTE_NO_STATION = "Needs no workers.";
+/** Slice 28: building note, a worker is on the tile. */
+export const BUILDING_NOTE_STAFFED = "Staffed and working.";
+/** Slice 28: building note, no worker on the tile. */
+export const BUILDING_NOTE_UNSTAFFED = "Waiting for a worker.";
+
+/** Slice 28: board scale bands by tile count (width x height). At or under SMALL is small; at or under MID is mid. */
+export const BOARD_SCALE_SMALL_TILES = 48;
+export const BOARD_SCALE_MID_TILES = 120;
+/** Slice 28: board scale note, a small board. */
+export const BOARD_SCALE_NOTE_SMALL = "A small realm.";
+/** Slice 28: board scale note, a mid-sized board. */
+export const BOARD_SCALE_NOTE_MID = "A mid-sized realm.";
+/** Slice 28: board scale note, a wide board. */
+export const BOARD_SCALE_NOTE_WIDE = "A wide realm.";
+
 // ---------------------------------------------------------------- player reply (slice 7)
 
 /**
