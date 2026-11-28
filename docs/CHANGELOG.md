@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 2026-11-28 — Living presentation for environment weather and station rhythm (Slice 34)
+
+- **Environment weather-mark pill (`hud/BoardEnvironmentWeatherMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentWeatherMark` and `<BoardEnvironmentWeatherMarkPill>`, reading `environmentSnapshot(state)?.weatherMark` (`42a95f3`, exact match — zero mismatch) to render a calm fourth top-right pill (`top: 140px`, stacked beneath `<BoardEnvironmentSeasonNotePill>`) with a small weather emblem (`Clear air`, `Light rain`, `Strong wind`, `Still mist`), hiding cleanly when `weatherMark` is `null` or `living_environment_weather` is `false`.
+- **Station rhythm mark (`hud/WorkStationRhythmMark.tsx`, `hud/WorkCard.tsx`):** Added `resolveStationRhythm` and `<WorkStationRhythmBadge>`, reading `stationRhythmSnapshot(state, buildingId)` (`42a95f3`, exact match — zero mismatch) to draw three linked repeating pulse dots (`Rhythm +1% · In rhythm: +1%.`) while a staffed work station is in midday rhythm, and quiet plain notes while waiting, unstaffed, upgrading, or building, hiding cleanly on non-station buildings or `living_station_rhythm` off.
+- **Unchanged invariants & accessibility:** Dedicated `hud/board-environment-weather-mark.css` and `hud/work-station-rhythm.css` only (zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, pathfinding, or fog math); Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on weather marks and rhythm pulses, and `@media (prefers-reduced-motion: reduce)` guards.
+- **Tests:** Added `packages/app/src/hud/LivingSlice34Presentation.test.tsx` (4 tests). Now: sim **1030**, app **1751**, server **158** (+1 symlink skip on Windows), app build clean.
+
 ## 2026-11-28 — Living Realm slice 34 (environment weather, station rhythm)
 
 - **Environment weather:** `environmentSnapshot(state)` gains **`weatherMark`** → `{ features, ambient, note, mood, seasonNote, weatherMark }`. `weatherMark` = `Clear air` (clear) / `Light rain` (rain) / `Strong wind` (storm) / `Still mist` (snow). Read-only.

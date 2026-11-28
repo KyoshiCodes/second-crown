@@ -1,0 +1,116 @@
+/* --- Living Realm Slice 34: Environment Weather Mark Pill (isolated CSS) ---
+ * Loaded from hud/BoardEnvironmentWeatherMark.tsx.
+ * Leaves theme.css, board-living.css, board-environment.css, board-environment-mood.css,
+ * board-environment-season-note.css, and earlier CSS files untouched.
+ * Strict pointer-events: none !important on weather-mark pill and decorative mark.
+ * Calm fourth weather-mark tag below BoardEnvironmentSeasonNotePill across Dusk, Night, and Parchment.
+ */
+
+/* ==========================================================================
+   1. Theme Tokens (Dusk default, Night, Parchment)
+   ========================================================================== */
+:root,
+:root[data-chrome="dusk"] {
+  --sc-bweather-bg: rgba(14, 20, 32, 0.74);
+  --sc-bweather-border: rgba(148, 163, 184, 0.22);
+  --sc-bweather-text: #dbe4ef;
+  --sc-bweather-clear: #fef08a;
+  --sc-bweather-rain: #7dd3fc;
+  --sc-bweather-storm: #c4b5fd;
+  --sc-bweather-snow: #e2e8f0;
+}
+
+:root[data-chrome="night"] {
+  --sc-bweather-bg: rgba(8, 12, 22, 0.84);
+  --sc-bweather-border: rgba(148, 163, 184, 0.26);
+  --sc-bweather-text: #e2e8f0;
+  --sc-bweather-clear: #fef9c3;
+  --sc-bweather-rain: #bae6fd;
+  --sc-bweather-storm: #d8b4fe;
+  --sc-bweather-snow: #f8fafc;
+}
+
+:root[data-chrome="parchment"] {
+  --sc-bweather-bg: rgba(30, 21, 13, 0.8);
+  --sc-bweather-border: rgba(196, 164, 112, 0.28);
+  --sc-bweather-text: #fef3c7;
+  --sc-bweather-clear: #fde68a;
+  --sc-bweather-rain: #bae6fd;
+  --sc-bweather-storm: #ddd6fe;
+  --sc-bweather-snow: #fef3c7;
+}
+
+/* ==========================================================================
+   2. Strict Non-Blocking Overlay Elements
+   ========================================================================== */
+.sc-bweather-pill,
+.sc-bweather-pill *,
+.sc-bweather-mark {
+  pointer-events: none !important;
+  user-select: none;
+}
+
+/* ==========================================================================
+   3. Calm Environment Weather-Mark Pill (Stacked Below .sc-bseason-pill at top: 116px)
+   ========================================================================== */
+.sc-bweather-pill {
+  position: absolute;
+  top: 140px;
+  right: 14px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2.5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-bweather-border);
+  background: var(--sc-bweather-bg);
+  color: var(--sc-bweather-text);
+  font-size: 10px;
+  line-height: 1.3;
+  backdrop-filter: blur(4px);
+}
+
+.sc-bweather-mark {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: var(--sc-bweather-clear);
+  animation: sc-bweather-breathe 5.6s ease-in-out infinite;
+}
+
+.sc-bweather-pill.is-rain .sc-bweather-mark {
+  color: var(--sc-bweather-rain);
+}
+
+.sc-bweather-pill.is-storm .sc-bweather-mark {
+  color: var(--sc-bweather-storm);
+}
+
+.sc-bweather-pill.is-snow .sc-bweather-mark {
+  color: var(--sc-bweather-snow);
+}
+
+.sc-bweather-label {
+  font-weight: 500;
+}
+
+@keyframes sc-bweather-breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 0.96;
+  }
+}
+
+/* ==========================================================================
+   4. Reduced Motion Accessibility Guard
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .sc-bweather-mark {
+    animation: none;
+    transition: none;
+  }
+}

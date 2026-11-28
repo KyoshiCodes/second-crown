@@ -1,3 +1,12 @@
+## 2026-11-28 — app / living presentation for environment weather mark & station rhythm
+
+- **Environment weather-mark pill (`packages/app/src/hud/BoardEnvironmentWeatherMark.tsx`, `BoardLiving.tsx`):**
+  - Exported pure `resolveBoardEnvironmentWeatherMark(state)` and `<BoardEnvironmentWeatherMarkPill>` wrapping `environmentSnapshot(state)?.weatherMark` (`42a95f3`, zero mismatch). Renders a non-blocking fourth top-right pill (`top: 140px; right: 14px;`) stacked cleanly beneath `<BoardEnvironmentSeasonNotePill>` (`top: 116px`) with a 10×10 weather emblem SVG (`clear`, `rain`, `storm`, `snow`), returning `null` when `weatherMark` is `null` (`living_environment_weather` off) or `living_environment` is off.
+- **Station rhythm mark (`packages/app/src/hud/WorkStationRhythmMark.tsx`, `WorkCard.tsx`):**
+  - Exported pure `resolveStationRhythm(state, buildingId)` and `<WorkStationRhythmBadge>` wrapping `stationRhythmSnapshot(state, buildingId)` (`42a95f3`, zero mismatch). Draws three linked repeating cadence dots (`sc-wrhy-pulse`) with `Rhythm +1%` when `inRhythm === true`, plain muted notes otherwise (`Finds its rhythm by midday.` / `Needs a worker for rhythm.` / `Rhythm paused for upgrade.` / `Finds rhythm once built.`), and hides cleanly on non-station buildings or `living_station_rhythm` off.
+- **Dedicated CSS (`hud/board-environment-weather-mark.css`, `hud/work-station-rhythm.css`):** Dusk/Night/Parchment chrome tokens, `pointer-events: none !important;` on emblems and rhythm pulses, calm staggered pulse/breathing keyframes, and `@media (prefers-reduced-motion: reduce)` guards. Zero edits to `packages/sim`, `packages/render`, `packages/shared`, `server/`, `theme.css`, `board-living.css`, earlier CSS files, build costs, fog, or pathfinding.
+- **Verification (`packages/app/src/hud/LivingSlice34Presentation.test.tsx`):** 4 tests passing (`npm test` -> sim **1030**, app **1751**, server **158** (+1 Windows skip); `npm run build -w @second-crown/app` clean).
+
 ## 2026-11-28 — sim / Living Realm slice 34 (environment weather, station rhythm)
 
 - **Where:** `weatherMark` in `environmentSnapshot` and `stationRhythmSnapshot` in `systems/livingStatus.ts`; `stationRhythmBonus` / `stationRhythmReady` / `stationRhythmWindowAt` / `nextStationRhythmTick` in `systems/economy.ts`; constants `ENVIRONMENT_WEATHER_MARK`, `STATION_RHYTHM_*` in `content/livingRealm.ts`. All exported from `packages/sim`.

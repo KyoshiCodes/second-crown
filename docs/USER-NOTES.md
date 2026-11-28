@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Weather tag on the map and midday rhythm dots on work buildings
+
+- **Fourth sky tag on the map:** A calm weather-mark pill (`Clear air`, `Light rain`, `Strong wind`, or `Still mist`) now sits directly below the season tag in the top-right corner of the map.
+- **Steady rhythm dots on work buildings:** Finished, staffed work buildings in Kingdom show a gentle three-dot `Rhythm +1%` seal (`In rhythm: +1%.`) during their steady midday stretch, switching back to plain guidance outside those hours.
+
 ## 2026-11-28 — Weather marks and work buildings in rhythm
 
 - **Work buildings find a rhythm.** A finished work building with a worker settles into a rhythm through the middle of the day (from late morning until dusk) and works 1% harder. Buildings with no worker, still being built, or being upgraded do not count. It is a small boost, and it never overlaps the dawn rest bonus.
