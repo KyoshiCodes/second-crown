@@ -731,3 +731,19 @@ export {
 export type { WarPhaseId, FormationId, ColumnMarkId } from "./content/livingRealm.js";
 export { workerSnapshot, unitActivity, unitActivityAt, WORKER_TASK_TAGS, UNIT_DOING_LABEL } from "./systems/boardActivity.js";
 export type { WorkerSnapshot, WorkerPost, WorkerTaskTag, UnitActivity, UnitDoing } from "./systems/boardActivity.js";
+export {
+  audioSnapshot,
+  weatherParticleSnapshot,
+  AUDIO_AMBIENT,
+  AUDIO_WEATHER_LAYER,
+  AUDIO_VOLUME,
+  AUDIO_NIGHT_FACTOR,
+  WEATHER_PARTICLES,
+} from "./systems/presentation.js";
+export type {
+  AudioSnapshot,
+  AudioAmbientId,
+  AudioWeatherLayerId,
+  WeatherParticleSnapshot,
+  WeatherParticleKind,
+} from "./systems/presentation.js";

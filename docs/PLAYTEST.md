@@ -205,6 +205,8 @@ Environment light and station focus available (`living_environment_light`, `livi
 
 Environment wind and station care available (`living_environment_wind`, `living_station_care`); new bonus: staffed work-station buildings that are not resting or upgrading are well kept and give +0.5% output, stacking with rhythm and focus (care flag off removes it).
 
+Route B Slice 0 audio and weather particles available (`living_audio`, `living_weather_particles`); sim data only, nothing plays or shows yet.
+
 Attentive:
 
 ```

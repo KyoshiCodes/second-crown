@@ -209,6 +209,10 @@ export interface LivingSwitches {
   environmentWind: boolean;
   /** Station care (slice 36): +0.5% on staffed, non-resting stations, and stationCareSnapshot. False: no bonus, null. */
   stationCare: boolean;
+  /** Audio (Route B slice 0): audioSnapshot. False: null. Read-only; the sim never plays sound. */
+  audio: boolean;
+  /** Weather particles (Route B slice 0): weatherParticleSnapshot. False: null. Read-only. */
+  weatherParticles: boolean;
 }
 
 /** Flag name per switch. A flag set to `false` turns that behaviour off. */
@@ -283,6 +287,8 @@ export const LIVING_SWITCH_FLAGS: Record<keyof LivingSwitches, string> = {
   stationFocus: "living_station_focus",
   environmentWind: "living_environment_wind",
   stationCare: "living_station_care",
+  audio: "living_audio",
+  weatherParticles: "living_weather_particles",
 };
 
 /** All on by default. A flag set to `false` turns one off (tests, harness, a future setting). */

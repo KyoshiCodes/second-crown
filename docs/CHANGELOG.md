@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## 2026-11-28 — Route B slice 0 (audio foundation, weather particle data)
+
+- **Start of Route B (2.5D → 3D).** Two read-only presentation snapshots in new `packages/sim/src/systems/presentation.ts`, exported from `packages/sim`. The sim plays no sound and draws nothing.
+- **`audioSnapshot(state)`** → `{ ambient, weatherLayer, volume }` or null. `ambient` from day phase: `hold_dawn` / `hold_day` / `hold_dusk` / `hold_night`. `weatherLayer` from weather: clear `clear`, rain `rain`, storm `wind`, snow `mist`. `volume` 0–1: clear 0.5, rain 0.6, storm 0.8, snow 0.4; night ×0.75.
+- **`weatherParticleSnapshot(state)`** → `{ kind, intensity }` or null. clear `none` 0, rain `rain` 0.6, storm `rain` 1, snow `mist` 0.5.
+- **Switches:** `living_audio` (false: audioSnapshot null), `living_weather_particles` (false: weatherParticleSnapshot null). On by default like other living switches.
+- **Left alone:** pathfinding, fog, economy, combat, weather / season / day rules, save format, server, render / app UI.
+- **Tests:** new `systems/routeBSlice0.test.ts` (13): both shapes, mapping per weather and phase, live match over a day, both flags, no mutation, determinism, export. Now: sim **1078**, app **1759**, server **158** (1 skipped on Windows), app build clean.
+
 ## 2026-11-28 — Living presentation for environment wind and station care (Slice 36)
 
 - **Environment wind-mark pill (`hud/BoardEnvironmentWindMark.tsx`, `BoardLiving.tsx`):** Added `resolveBoardEnvironmentWindMark` and `<BoardEnvironmentWindMarkPill>`, reading `environmentSnapshot(state)?.windMark` (`03ff957`, exact match — zero mismatch) to render a calm sixth top-right pill (`top: 188px`, stacked beneath `<BoardEnvironmentLightMarkPill>`) with a small wind emblem (`Still air`, `Soft breeze`, `Steady wind`, `Gusting`), hiding cleanly when `windMark` is `null` or `living_environment_wind` is `false`.

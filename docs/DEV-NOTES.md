@@ -1,3 +1,17 @@
+## 2026-11-28 — sim / Route B slice 0 (audio and weather particle snapshots)
+
+- **Where:** `systems/presentation.ts` (`audioSnapshot`, `weatherParticleSnapshot`, tables `AUDIO_AMBIENT`, `AUDIO_WEATHER_LAYER`, `AUDIO_VOLUME`, `AUDIO_NIGHT_FACTOR`, `WEATHER_PARTICLES`). Switch keys `audio` / `weatherParticles` in `LIVING_SWITCH_FLAGS`. All exported from `packages/sim`.
+- **Pure reads.** Inputs are `weatherFor(state)` and `dayPhase(state)` only. No new state, no save change, no RNG draw, no tick or event-tick change.
+- **Ids are fixed strings.** The app maps them to audio files / particle emitters later; the sim never names a file.
+
+### Security / presentation boundary (Route B slice 0)
+
+- The new audio and particle snapshots are **client-only presentation**. They are computed in the browser from the local save, like other living snapshots.
+- **No new server endpoints.** `server/index.mjs` is unchanged and does not call them.
+- **No secrets.** No keys, tokens, URLs or asset hosts were added.
+- **Flags:** `living_audio` (false: `audioSnapshot` returns null), `living_weather_particles` (false: `weatherParticleSnapshot` returns null).
+- **Left alone:** pathfinding, fog, economy, combat, weather rules, render / app UI. **Not yet in the app.**
+
 ## 2026-11-28 — app / living presentation for environment wind mark & station care
 
 - **Environment wind-mark pill (`packages/app/src/hud/BoardEnvironmentWindMark.tsx`, `BoardLiving.tsx`):**

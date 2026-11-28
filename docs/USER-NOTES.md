@@ -2,6 +2,11 @@
 
 Newest first. Plain language for playtesters.
 
+## 2026-11-28 — Groundwork for sound and rain effects
+
+- **Sound and weather effects (under the hood).** The game can now say which background sound fits the moment (dawn, day, dusk or night, plus a rain, wind or mist layer) and how loud, and whether rain or mist should fall on the map and how heavily. Nothing plays or shows yet; this is the first step toward the 3D look.
+- **Unchanged:** economy, movement, fog, battles, weather effects, saves.
+
 ## 2026-11-28 — Wind tag on the map and care heart marks on work buildings
 
 - **Sixth wind tag on the map:** A calm wind pill (`Still air`, `Soft breeze`, `Steady wind`, or `Gusting`) now sits directly below the daylight tag in the top-right corner of the map.
